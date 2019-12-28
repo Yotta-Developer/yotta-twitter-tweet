@@ -1,0 +1,332 @@
+<?php
+
+function yotta_tweet_installed_fields() {
+  return [
+    'twitter_tweet_id' => [
+      'field_name' => 'twitter_tweet_id',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_text' => [
+      'field_name' => 'twitter_tweet_text',
+      'type' => 'text_long',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_url' => [
+      'field_name' => 'twitter_tweet_url',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_name' => [
+      'field_name' => 'twitter_tweet_name',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_user_id' => [
+      'field_name' => 'twitter_tweet_user_id',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_screen_name' => [
+      'field_name' => 'twitter_tweet_screen_name',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_retweet_count' => [
+      'field_name' => 'twitter_tweet_retweet_count',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_favorite_count' => [
+      'field_name' => 'twitter_tweet_favorite_count',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_image' => [
+      'field_name' => 'twitter_tweet_image',
+      'type' => 'image',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_profile_image' => [
+      'field_name' => 'twitter_tweet_profile_image',
+      'type' => 'image',
+      'cardinality' => 1,
+    ],
+    'twitter_tweet_date' => [
+      'field_name' => 'twitter_tweet_date',
+      'type' => 'text',
+      'cardinality' => 1,
+    ],
+  ];
+}
+
+function yotta_tweet_installed_instances() {
+  $t = get_t();
+  return [
+    'twitter_tweet_id' => [
+      'field_name' => 'twitter_tweet_id',
+      'label' => $t('tweet id'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_text' => [
+      'field_name' => 'twitter_tweet_text',
+      'label' => $t('tweet text'),
+      'required' => TRUE,
+      'type' => 'text_long',
+      'widget' => [
+        'type' => 'text_textarea',
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_url' => [
+      'field_name' => 'twitter_tweet_url',
+      'label' => $t('tweet url'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_name' => [
+      'field_name' => 'twitter_tweet_name',
+      'label' => $t('tweet name'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_user_id' => [
+      'field_name' => 'twitter_tweet_user_id',
+      'label' => $t('tweet user id'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_screen_name' => [
+      'field_name' => 'twitter_tweet_screen_name',
+      'label' => $t('tweet screen name'),
+      'required' => TRUE,
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_retweet_count' => [
+      'field_name' => 'twitter_tweet_retweet_count',
+      'label' => $t('tweet retweet count'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_favorite_count' => [
+      'field_name' => 'twitter_tweet_favorite_count',
+      'label' => $t('tweet favorite count'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_image' => [
+      'field_name' => 'twitter_tweet_image',
+      'label' => $t('tweet image'),
+      'required' => TRUE,
+      'type' => 'image',
+      'widget' => [
+        'type' => 'image_image',
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_profile_image' => [
+      'field_name' => 'twitter_tweet_profile_image',
+      'label' => $t('tweet profile image'),
+      'required' => TRUE,
+      'type' => 'image',
+      'widget' => [
+        'type' => 'image_image',
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+
+    'twitter_tweet_date' => [
+      'field_name' => 'twitter_tweet_date',
+      'label' => $t('tweet date'),
+      'required' => TRUE,
+      'type' => 'text',
+      'widget' => [
+        'type' => 'text',
+      ],
+      'settings' => [
+        'max_length' => 10485760,
+      ],
+      'display' => [
+        'default' => [
+          'label' => 'above',
+          'type' => 'text',
+        ],
+      ],
+    ],
+  ];
+}
+
+function add_custom_fields() {
+  foreach (yotta_tweet_installed_fields() as $field) {
+    field_create_field($field);
+  }
+  foreach (yotta_tweet_installed_instances() as $fieldinstance) {
+    $fieldinstance['entity_type'] = 'node';
+    $fieldinstance['bundle'] = 'yotta_twitter_tweet';
+    field_create_instance($fieldinstance);
+  }
+}
+
+function delete_custom_fields() {
+  foreach (array_keys(yotta_tweet_installed_instances()) as $field) {
+    field_delete_field($field);
+  }
+  $instances = field_info_instances('node', 'tweets');
+  foreach ($instances as $instance_name => $fieldinstance) {
+    field_delete_instance($fieldinstance);
+  }
+}
+
+/**
+ * Implements hook_install().
+ */
+
+function yotta_tweet_install() {
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['yotta_twitter_tweet']);
+  add_custom_fields();
+  variable_set('twitter_since_id', 1);
+  field_info_cache_clear(TRUE);
+  field_cache_clear(TRUE);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function yotta_tweet_uninstall() {
+  variable_del('yotta_tweet_proxy_server_status');
+  variable_del('yotta_tweet_proxy_server_ip');
+  variable_del('yotta_tweet_proxy_server_port');
+  variable_del('yotta_tweet_proxy_server_authentication_type');
+  variable_del('yotta_tweet_proxy_server_authentication_username');
+  variable_del('yotta_tweet_proxy_server_authentication_password');
+  variable_del('yotta_tweet_twitter_account_name');
+  variable_del('yotta_tweet_twitter_consumer_key');
+  variable_del('yotta_tweet_twitter_consumer_secret');
+  variable_del('yotta_tweet_twitter_oauth_token');
+  variable_del('yotta_tweet_twitter_oauth_secret');
+  variable_del('yotta_tweet_intermediate_server_status');
+  variable_del('yotta_tweet_intermediate_server_endpoint');
+  $contentType = 'yotta_twitter_tweet';
+  $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+  $result = db_query($sql, [':type' => $contentType]);
+  $nodeIds = [];
+  foreach ($result as $row) {
+    $nodeIds[] = $row->nid;
+  }
+  node_delete_multiple($nodeIds);
+  _node_types_build(TRUE);
+  delete_custom_fields();
+  node_type_delete("yotta_twitter_tweet");
+  field_purge_batch(500);
+  drupal_flush_all_caches();
+}

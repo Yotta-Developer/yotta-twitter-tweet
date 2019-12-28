@@ -1,0 +1,308 @@
+<?php
+
+
+use Abraham\TwitterOAuth\TwitterOAuth;
+
+
+/**
+ * Implements hook_node_info()
+ */
+function yotta_tweet_node_info()
+{
+    return [
+        'yotta_twitter_tweet' => [
+            'name' => t('Yotta Twitter Tweet'),
+            'base' => 'yotta_twitter_tweet',
+            'description' => t('You can define new tweets content'),
+            'has_title' => TRUE,
+            'locked' => TRUE,
+            'title_label' => t('Title'),
+        ],
+    ];
+}
+/**
+ * Implement hook_form()
+ */
+function yotta_twitter_tweet_form($node, $form_state) {
+    return node_content_form($node, $form_state);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function yotta_tweet_permission()
+{
+    return [
+        'access administrator yotta tweet settings' => [
+            'title' => t('access administrator yotta tweet settings.'),
+        ],
+    ];
+}
+
+
+/**
+ * Implements hook_init().
+ */
+function yotta_tweet_init()
+{
+
+    drupal_add_library('system', 'drupal.ajax');
+    define("YOTTA_TWEET_PROXY_SERVER_STATUS", variable_get('yotta_tweet_proxy_server_status'));
+    define("YOTTA_TWEET_PROXY_SERVER_IP", variable_get('yotta_tweet_proxy_server_ip'));
+    define("YOTTA_TWEET_PROXY_SERVER_PORT", variable_get('yotta_tweet_proxy_server_port'));
+    define("YOTTA_TWEET_PROXY_SERVER_AUTHENTICATION_TYPE", variable_get('yotta_tweet_proxy_server_authentication_type'));
+    define("YOTTA_TWEET_PROXY_SERVER_AUTHENTICATION_USERNAME", variable_get('yotta_tweet_proxy_server_authentication_username'));
+    define("YOTTA_TWEET_PROXY_SERVER_AUTHENTICATION_PASSWORD", variable_get('yotta_tweet_proxy_server_authentication_password'));
+    define("YOTTA_TWEET_TWITTER_ACCOUNT_NAME", variable_get('yotta_tweet_twitter_account_name'));
+    define("YOTTA_TWEET_TWITTER_CONSUMER_KEY", variable_get('yotta_tweet_twitter_consumer_key'));
+    define("YOTTA_TWEET_TWITTER_CONSUMER_SECRET", variable_get('yotta_tweet_twitter_consumer_secret'));
+    define("YOTTA_TWEET_TWITTER_OAUTH_TOKEN", variable_get('yotta_tweet_twitter_oauth_token'));
+    define("YOTTA_TWEET_TWITTER_OAUTH_SECRET", variable_get('yotta_tweet_twitter_oauth_secret'));
+    define("YOTTA_TWEET_INTERMEDIATE_SERVER_STATUS", variable_get('yotta_tweet_intermediate_server_status'));
+    define("YOTTA_TWEET_INTERMEDIATE_SERVER_ENDPOINT", variable_get('yotta_tweet_intermediate_server_endpoint'));
+}
+
+
+/**
+ * Implements hook_action_info().
+ */
+function yotta_tweet_menu()
+{
+    $items = [];
+    $items['admin/config/content/yotta/tweet'] = [
+        'title' => 'Yotta Tweet',
+        'description' => 'Yotta Tweet setting',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => ['yotta_tweet_twitter_account_settings'],
+        'access arguments' => ['access administrator yotta tweet settings'],
+        'file' => 'includes/yotta_tweet.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 40,
+    ];
+
+    $items['admin/config/content/yotta/tweet/account'] = [
+        'title' => 'Twitter Account',
+        'description' => 'yotta_tweet twitter account setting',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => ['yotta_tweet_twitter_account_settings'],
+        'access arguments' => ['access administrator yotta tweet settings'],
+        'file' => 'includes/yotta_tweet.admin.inc',
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'weight' => 1,
+    ];
+    $items['admin/config/content/yotta/tweet/intermediate'] = [
+        'title' => 'Intermediate Server',
+        'description' => 'Intermediate Server  setting',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => ['yotta_tweet_intermediate_server_settings'],
+        'access arguments' => ['access administrator yotta tweet settings'],
+        'file' => 'includes/yotta_tweet.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 3,
+
+    ];
+    $items['admin/config/content/yotta/tweet/proxy'] = [
+        'title' => 'Proxy Server',
+        'description' => 'Proxy server setting',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => ['yotta_tweet_proxy_server_settings'],
+        'access arguments' => ['access administrator yotta tweet settings'],
+        'file' => 'includes/yotta_tweet.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 2,
+
+    ];
+
+    $items['admin/content/sync'] = [
+        'title' => 'Sync Twitter to Site',
+        'description' => 'Synchronize Twitter accounts tweets with the site.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => ['yotta_tweet_synchronize'],
+        'access arguments' => ['access administrator yotta tweet settings'],
+        'type' => MENU_LOCAL_ACTION,
+    ];
+    return $items;
+}
+
+/**
+ * Implements hook_form().
+ */
+function yotta_tweet_synchronize()
+{
+    try {
+        if (!class_exists('Abraham\TwitterOAuth\TwitterOAuth')) {
+            drupal_set_message('The abraham/twitteroauth library doesn\'t exist .', 'error');
+            drupal_set_message(join(' ', [
+                'Refer to the instructions on the',
+                l(' Composer Manager project page', ''),
+                'for installing packages',
+                '.',
+            ]), 'error');
+            return;
+        }
+        if (YOTTA_TWEET_INTERMEDIATE_SERVER_STATUS):
+            $curl_handle = curl_init();
+            curl_setopt($curl_handle, CURLOPT_URL, join("/", [
+                YOTTA_TWEET_INTERMEDIATE_SERVER_ENDPOINT,
+                "statuses",
+                "user_timeline",
+            ]));
+            curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($curl_handle, CURLOPT_POSTFIELDS, http_build_query([
+                "count" => 10,
+                "exclude_replies" => TRUE,
+                "screen_name" => "cyberrob4",
+                "tweet_mode" => 'extended',
+                'since_id' => variable_get('twitter_since_id'),
+            ]));
+
+            curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($curl_handle);
+            if (curl_errno($curl_handle)) :
+                drupal_set_message('message: ' . curl_error($curl_handle), 'error');
+                watchdog('Yotta Twitter', curl_error($curl_handle), NULL, WATCHDOG_NOTICE);
+            else:
+                switch (curl_getinfo($curl_handle, CURLINFO_HTTP_CODE)) {
+                    case 200:
+                        yotta_tweet_node_create_from_tweets(json_decode($response));
+                        drupal_set_message('Sync to twitter account successfully.', 'status');
+                        break;
+                    default:
+                        drupal_set_message('message: ' . $response, 'error');
+                        watchdog('Yotta Twitter', $response, NULL, WATCHDOG_NOTICE);
+                }
+
+            endif;
+            curl_close($curl_handle);
+        else:
+            $connection = new TwitterOAuth(YOTTA_TWEET_TWITTER_CONSUMER_KEY, YOTTA_TWEET_TWITTER_CONSUMER_SECRET, YOTTA_TWEET_TWITTER_OAUTH_TOKEN, YOTTA_TWEET_TWITTER_OAUTH_SECRET);
+            $connection->setTimeouts(150, 200);
+            if (YOTTA_TWEET_PROXY_SERVER_STATUS) {
+                $connection->setProxy([
+                    'CURLOPT_PROXY' => YOTTA_TWEET_PROXY_SERVER_IP,
+                    'CURLOPT_PROXYUSERPWD' => YOTTA_TWEET_PROXY_SERVER_AUTHENTICATION_TYPE ? join(':', [
+                        YOTTA_TWEET_PROXY_SERVER_AUTHENTICATION_USERNAME,
+                        YOTTA_TWEET_PROXY_SERVER_AUTHENTICATION_PASSWORD,
+                    ]) : '',
+                    'CURLOPT_PROXYPORT' => YOTTA_TWEET_PROXY_SERVER_PORT,
+                    'CURLOPT_PROXYTYPE' => 'HTTPS',
+                    'CURLOPT_SSL_VERIFYPEER' => TRUE,
+                    'CURLOPT_SSL_VERIFYHOST' => 2,
+                ]);
+
+            }
+            $response = $connection->get("statuses/user_timeline", [
+                "count" => 10,
+                "exclude_replies" => TRUE,
+                "screen_name" => "cyberrob4",
+                "tweet_mode" => 'extended',
+                'since_id' => 1,
+            ]);
+            if ($connection->getLastHttpCode() == 200) {
+                yotta_tweet_node_create_from_tweets($response);
+                drupal_set_message('Sync to twitter account successfully.', 'status');
+            } else {
+                foreach ($connection->getLastBody()->errors as $key => $error) {
+                    drupal_set_message('message: ' . $error->message, 'error');
+                    watchdog('Yotta Twitter', $error->message, NULL, WATCHDOG_NOTICE);
+                }
+            }
+            drupal_goto('admin/content');
+        endif;
+    } catch (Exception $exception) {
+        drupal_set_message('Message: ' . $exception->getMessage(), 'error');
+        watchdog('Yotta Twitter', $exception->getMessage(), NULL, WATCHDOG_NOTICE);
+    }
+
+}
+
+function yotta_tweet_node_create_from_tweets($tweets)
+{
+
+    global $user;
+    foreach (array_reverse($tweets) as $key => $tweet) {
+        $node = new stdClass();
+        $node->type = "yotta_twitter_tweet";
+        node_object_prepare($node);
+        $node->language = LANGUAGE_NONE;
+        $node->uid = $user->uid;
+        $node->status = 1;
+        $node->promote = 0;
+        $node->comment = 0;
+        $node->title = $tweet->retweeted_status->id;
+        $node->twitter_tweet_name[$node->language][]['value'] = $tweet->retweeted_status->user->name;
+        $node->twitter_tweet_screen_name[$node->language][]['value'] = $tweet->retweeted_status->user->screen_name;
+    $node->twitter_tweet_user_id[$node->language][]['value'] = $tweet->retweeted_status->user->id;
+    $node->twitter_tweet_retweet_count[$node->language][]['value'] = $tweet->retweeted_status->retweet_count;
+    $node->twitter_tweet_favorite_count[$node->language][]['value'] = $tweet->retweeted_status->favorite_count;
+    $node->twitter_tweet_date[$node->language][]['value'] = $tweet->retweeted_status->created_at;
+    if (!empty($tweet->retweeted_status->full_text)) {
+        $node->twitter_tweet_text[$node->language][]['value'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', "\xEF\xBF\xBD", $tweet->retweeted_status->full_text);;
+    }
+    if (!empty($tweet->entities->urls['0']->url)) :
+        $node->twitter_tweet_url[$node->language][]['value'] = $tweet->entities->urls['0']->url;
+    endif;
+    if (!empty($tweet->retweeted_status->user->profile_image_url)) :
+        $url = $tweet->retweeted_status->user->profile_image_url;
+        if (YOTTA_TWEET_INTERMEDIATE_SERVER_STATUS):
+            $curl_handle = curl_init();
+            curl_setopt($curl_handle, CURLOPT_URL, join("/", [
+                YOTTA_TWEET_INTERMEDIATE_SERVER_ENDPOINT,
+                "download"
+            ]));
+            curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($curl_handle, CURLOPT_POSTFIELDS, http_build_query([
+                "uri" => $url,
+            ]));
+            curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($curl_handle);
+            $url = join("/", [
+                YOTTA_TWEET_INTERMEDIATE_SERVER_ENDPOINT,
+                "static", json_decode($response)->filename
+            ]);
+        endif;
+        $file = system_retrieve_file($url, 'public://twitter/', TRUE, $replace = FILE_EXISTS_REPLACE);
+        dpm($file);
+        dpm(file_save($file));
+        $file->status = 1;
+        $node->twitter_tweet_profile_image['und'][0] = (array)$file;
+    endif;
+    if (!empty($tweet->retweeted_status->entities->media[0]->media_url)) :
+        if (YOTTA_TWEET_INTERMEDIATE_SERVER_STATUS):
+            $curl_handle = curl_init();
+            curl_setopt($curl_handle, CURLOPT_URL, join("/", [
+                YOTTA_TWEET_INTERMEDIATE_SERVER_ENDPOINT,
+                "download"
+            ]));
+            curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($curl_handle, CURLOPT_POSTFIELDS, http_build_query([
+                "uri" => $url,
+            ]));
+            curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($curl_handle);
+            $url = join("/", [
+                YOTTA_TWEET_INTERMEDIATE_SERVER_ENDPOINT,
+                "static", json_decode($response)->filename
+            ]);
+        endif;
+        $url= $tweet->retweeted_status->entities->media[0]->media_url;
+        $file = system_retrieve_file($url, 'public://twitter/', TRUE, $replace = FILE_EXISTS_REPLACE);
+        dpm($file);
+        dpm(file_save($file));
+        $file->alt = t('This is the alt text');
+        $node->twitter_tweet_image['und'][0] = (array)$file;
+    endif;
+    variable_set('twitter_since_id', $tweet->id);
+    $node = node_submit($node);
+    node_save($node);
+  }
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,7 @@
+name = Yotta Twitter Tweet
+description = Yotta Twitter Tweet is a module to show posts from Twitter in your site.
+core = 7.x
+files[]   = includes/yotta_tweet.admin.inc
+configure = admin/config/content/yotta/tweet
+dependencies[]=yotta
+dependencies[]=composer_manager
